@@ -13,7 +13,6 @@
               sans: ['Inter', 'system-ui', 'sans-serif'],
             },
             colors: {
-              // New Premium Indigo/Violet Theme
               primary: {
                 50: '#eef2ff',
                 100: '#e0e7ff',
@@ -21,15 +20,12 @@
                 300: '#a5b4fc',
                 400: '#818cf8',
                 500: '#6366f1',
-                600: '#4f46e5', // Main Brand Color
+                600: '#4f46e5',
                 700: '#4338ca',
                 800: '#3730a3',
                 900: '#312e81',
                 950: '#1e1b4b',
               },
-              accent: {
-                500: '#f59e0b', // Amber for highlights
-              }
             },
             animation: {
               'hue-rotate': 'hue 8s linear infinite',
@@ -37,11 +33,11 @@
             },
             keyframes: {
               hue: {
-                '0%': { color: '#4f46e5' },   // Indigo
-                '25%': { color: '#db2777' },  // Pink
-                '50%': { color: '#7c3aed' },  // Violet
-                '75%': { color: '#2563eb' },  // Blue
-                '100%': { color: '#4f46e5' }, // Indigo
+                '0%': { color: '#4f46e5' },
+                '25%': { color: '#db2777' },
+                '50%': { color: '#7c3aed' },
+                '75%': { color: '#2563eb' },
+                '100%': { color: '#4f46e5' },
               },
               fadeIn: {
                 '0%': { opacity: '0', transform: 'translateY(10px)' },
@@ -54,26 +50,7 @@
     </script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
-      
-      body {
-        font-family: 'Inter', sans-serif;
-      }
-      
-      /* Custom scrollbar for better aesthetics */
-      ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #f1f1f1; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #c7d2fe; 
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #818cf8; 
-      }
+      body { font-family: 'Inter', sans-serif; }
     </style>
   <script type="importmap">
 {
@@ -82,14 +59,15 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
     "react/": "https://aistudiocdn.com/react@^19.2.1/",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.1"
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
   }
 }
 </script>
 </head>
   <body class="bg-slate-50 text-slate-900 antialiased selection:bg-primary-200 selection:text-primary-900">
     <div id="root"></div>
-    <!-- Entry Point for React - Critical for GitHub Pages/Vite -->
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
