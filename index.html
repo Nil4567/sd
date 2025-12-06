@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html>
   <head>
@@ -11,3 +12,78 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Siddhivinayak Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              primary: {
+                50: '#eef2ff',
+                100: '#e0e7ff',
+                200: '#c7d2fe',
+                300: '#a5b4fc',
+                400: '#818cf8',
+                500: '#6366f1',
+                600: '#4f46e5',
+                700: '#4338ca',
+                800: '#3730a3',
+                900: '#312e81',
+                950: '#1e1b4b',
+              },
+            },
+            animation: {
+              'hue-rotate': 'hue 8s linear infinite',
+              'fade-in': 'fadeIn 0.5s ease-out',
+            },
+            keyframes: {
+              hue: {
+                '0%': { color: '#4f46e5' },
+                '25%': { color: '#db2777' },
+                '50%': { color: '#7c3aed' },
+                '75%': { color: '#2563eb' },
+                '100%': { color: '#4f46e5' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap');
+      body { font-family: 'Inter', sans-serif; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.1/",
+    "react/": "https://aistudiocdn.com/react@^19.2.1/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.556.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "vite": "https://aistudiocdn.com/vite@^7.2.6",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+</head>
+  <body class="bg-slate-50 text-slate-900 antialiased selection:bg-primary-200 selection:text-primary-900">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
+>>>>>>> 21d33d3eb4361bc07e439ad4a78e6dbc10277efe
