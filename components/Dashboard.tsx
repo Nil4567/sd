@@ -512,15 +512,15 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser, onLogout }) => {
               <div className="bg-purple-50 p-4 rounded-lg mb-4 text-xs text-purple-900 border border-purple-100 flex items-start gap-2">
                 <Globe size={16} className="mt-0.5 flex-shrink-0" />
                 <span>
-                    <strong>GitHub Pages Hosting:</strong> Yes! This app works perfectly on GitHub Pages. 
-                    Just deploy this code, and ensure your "Web App URL" below is correct. 
-                    Your data lives in Google Sheets, so the hosting location doesn't matter.
+                    <strong>GitHub Pages Fix:</strong> Ensure your <code>index.html</code> has the script tag. 
+                    Also, check that you are running the latest version of the Google Apps Script below. 
+                    If "1 blank row" appears, it means the headers were not written before the data. The script below forces them.
                 </span>
               </div>
 
               <div className="bg-amber-50 p-4 rounded-lg mb-4 text-xs text-amber-900 border border-amber-100 flex items-start gap-2">
                 <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-                <span><strong>Fixed Script (Headers):</strong> This new script explicitly clears the sheet and re-writes headers every time to prevent missing rows.</span>
+                <span><strong>Script Update v3:</strong> This version flushes updates immediately to fix the "blank row" issue.</span>
               </div>
               
               <div className="relative mb-6 group">
@@ -558,18 +558,21 @@ function doPost(e) {
     var params = JSON.parse(e.postData.contents);
 
     if (params.action === 'backup_all') {
-       // --- SAVE ORDERS ---
        var sheet = ss.getSheets()[0];
        
-       // 1. CLEAR CONTENT (Keeps formatting, removes old rows)
-       sheet.clearContents();
+       // 1. SPECIFIC CLEAR (A:K)
+       // This prevents clearing entire rows if you have other notes on the side
+       sheet.getRange("A:K").clearContent();
        
-       // 2. SET HEADERS (Explicitly at Row 1)
+       // 2. FORCE HEADERS (Row 1)
        var headers = ["Order ID", "Date", "Customer Name", "Service Type", "Amount", "Status", "Assigned To", "Advance", "Payment Mode", "Completed At", "Priority"];
        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
        sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#f3f4f6");
 
-       // 3. WRITE DATA (Starting at Row 2)
+       // 3. FORCE FLUSH
+       SpreadsheetApp.flush();
+
+       // 4. WRITE DATA (Starting at Row 2)
        if (params.orders && params.orders.length > 0) {
          var rows = params.orders.map(function(o) { 
            return [o.id, o.date, o.customerName, o.serviceType, o.amount, o.status, o.assignedTo, o.advance, o.paymentMode, o.completedAt, o.priority]; 
@@ -577,12 +580,11 @@ function doPost(e) {
          sheet.getRange(2, 1, rows.length, 11).setValues(rows);
        }
 
-       // --- SAVE USERS ---
+       // --- USERS ---
        var userSheet = ss.getSheetByName("Users");
        if (!userSheet) { userSheet = ss.insertSheet("Users"); }
        
        userSheet.clearContents();
-       
        var userHeaders = ["Email", "Name", "Role", "Password"];
        userSheet.getRange(1, 1, 1, userHeaders.length).setValues([userHeaders]);
        userSheet.getRange(1, 1, 1, userHeaders.length).setFontWeight("bold").setBackground("#e0e7ff");
@@ -592,7 +594,7 @@ function doPost(e) {
          userSheet.getRange(2, 1, userRows.length, 4).setValues(userRows);
        }
        
-       return ContentService.createTextOutput("Sync Success");
+       return ContentService.createTextOutput("Sync Success v3");
     }
     return ContentService.createTextOutput("Invalid Action");
   } catch(e) { return ContentService.createTextOutput("Error: " + e.toString()); } 
@@ -601,12 +603,12 @@ function doPost(e) {
                   )} className="bg-slate-800 text-white px-3 py-1 text-xs rounded">Copy Code</button>
                 </div>
                 <pre className="bg-slate-900 text-slate-50 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-{`// NEW ROBUST SCRIPT
+{`// NEW SCRIPT v3 (Includes Flush)
 function doPost(e) {
   // ...
-  // 1. sheet.clearContents(); -> Wipes old data
-  // 2. setValues([headers]); -> Forces headers at Row 1
-  // 3. setValues(data); -> Writes new data at Row 2
+  sheet.getRange("A:K").clearContent(); // Specific Clear
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  SpreadsheetApp.flush(); // Force update
   // ...
 }`}
                 </pre>
