@@ -1,8 +1,9 @@
 {
   "name": "siddhivinayak-digital",
-  "private": true,
+  "private": false,
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://nil4567.github.io/sd",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
