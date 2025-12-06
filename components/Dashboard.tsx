@@ -30,7 +30,8 @@ import {
   AlertOctagon,
   Calendar,
   Flag,
-  HelpCircle
+  HelpCircle,
+  Globe
 } from 'lucide-react';
 import { 
   AreaChart,
@@ -506,9 +507,20 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser, onLogout }) => {
                 <Database size={24} className="text-green-600" />
                 Cloud Database
               </h3>
+              
+              {/* GitHub Hosting Success Message */}
+              <div className="bg-purple-50 p-4 rounded-lg mb-4 text-xs text-purple-900 border border-purple-100 flex items-start gap-2">
+                <Globe size={16} className="mt-0.5 flex-shrink-0" />
+                <span>
+                    <strong>GitHub Pages Hosting:</strong> Yes! This app works perfectly on GitHub Pages. 
+                    Just deploy this code, and ensure your "Web App URL" below is correct. 
+                    Your data lives in Google Sheets, so the hosting location doesn't matter.
+                </span>
+              </div>
+
               <div className="bg-amber-50 p-4 rounded-lg mb-4 text-xs text-amber-900 border border-amber-100 flex items-start gap-2">
                 <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
-                <span><strong>Updated Script Required:</strong> To show HEADERS in your sheet and keep your URL valid, update your script and follow the deployment tip below.</span>
+                <span><strong>Fixed Script (Headers):</strong> This new script explicitly clears the sheet and re-writes headers every time to prevent missing rows.</span>
               </div>
               
               <div className="relative mb-6 group">
@@ -522,11 +534,13 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser, onLogout }) => {
   var orders = [];
   var users = [];
 
-  // Read Orders (11 columns)
   var orderData = ordersSheet.getDataRange().getValues();
-  if (orderData.length > 1) { orderData.shift(); orders = orderData; }
+  // Safe header removal: only shift if there is actual data below headers
+  if (orderData.length > 1) { 
+    orderData.shift(); 
+    orders = orderData; 
+  }
 
-  // Read Users
   if (usersSheet) {
     var userData = usersSheet.getDataRange().getValues();
     if (userData.length > 1) { userData.shift(); users = userData; }
@@ -547,16 +561,15 @@ function doPost(e) {
        // --- SAVE ORDERS ---
        var sheet = ss.getSheets()[0];
        
-       // FORCE HEADERS (Row 1)
+       // 1. CLEAR CONTENT (Keeps formatting, removes old rows)
+       sheet.clearContents();
+       
+       // 2. SET HEADERS (Explicitly at Row 1)
        var headers = ["Order ID", "Date", "Customer Name", "Service Type", "Amount", "Status", "Assigned To", "Advance", "Payment Mode", "Completed At", "Priority"];
        sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
        sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#f3f4f6");
 
-       // Clear old data (from row 2)
-       var lastRow = sheet.getLastRow();
-       if (lastRow > 1) { sheet.getRange(2, 1, lastRow - 1, 11).clearContent(); }
-       
-       // Write new data
+       // 3. WRITE DATA (Starting at Row 2)
        if (params.orders && params.orders.length > 0) {
          var rows = params.orders.map(function(o) { 
            return [o.id, o.date, o.customerName, o.serviceType, o.amount, o.status, o.assignedTo, o.advance, o.paymentMode, o.completedAt, o.priority]; 
@@ -568,14 +581,12 @@ function doPost(e) {
        var userSheet = ss.getSheetByName("Users");
        if (!userSheet) { userSheet = ss.insertSheet("Users"); }
        
-       // FORCE USER HEADERS
+       userSheet.clearContents();
+       
        var userHeaders = ["Email", "Name", "Role", "Password"];
        userSheet.getRange(1, 1, 1, userHeaders.length).setValues([userHeaders]);
        userSheet.getRange(1, 1, 1, userHeaders.length).setFontWeight("bold").setBackground("#e0e7ff");
 
-       var lastUserRow = userSheet.getLastRow();
-       if (lastUserRow > 1) { userSheet.getRange(2, 1, lastUserRow - 1, 4).clearContent(); }
-       
        if (params.users && params.users.length > 0) {
          var userRows = params.users.map(function(u) { return [u.email, u.name, u.role, u.password]; });
          userSheet.getRange(2, 1, userRows.length, 4).setValues(userRows);
@@ -590,11 +601,12 @@ function doPost(e) {
                   )} className="bg-slate-800 text-white px-3 py-1 text-xs rounded">Copy Code</button>
                 </div>
                 <pre className="bg-slate-900 text-slate-50 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-{`// NEW SCRIPT WITH AUTO-HEADERS
+{`// NEW ROBUST SCRIPT
 function doPost(e) {
   // ...
-  // Forces Row 1 to be Headers:
-  // ["Order ID", "Date", "Customer Name", "Service", "Amount", "Status", "Assigned", "Advance", "Mode", "Completed", "Priority"]
+  // 1. sheet.clearContents(); -> Wipes old data
+  // 2. setValues([headers]); -> Forces headers at Row 1
+  // 3. setValues(data); -> Writes new data at Row 2
   // ...
 }`}
                 </pre>
