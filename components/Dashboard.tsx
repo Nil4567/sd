@@ -29,7 +29,8 @@ import {
   Banknote,
   AlertOctagon,
   Calendar,
-  Flag
+  Flag,
+  HelpCircle
 } from 'lucide-react';
 import { 
   AreaChart,
@@ -506,8 +507,8 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser, onLogout }) => {
                 Cloud Database
               </h3>
               <div className="bg-amber-50 p-4 rounded-lg mb-4 text-xs text-amber-900 border border-amber-100 flex items-start gap-2">
-                <AlertTriangle size={16} className="mt-0.5" />
-                <span><strong>Updated Script Required:</strong> To support TAT, Payments & Priority, please update your Google Apps Script with the code below.</span>
+                <AlertTriangle size={16} className="mt-0.5 flex-shrink-0" />
+                <span><strong>Updated Script Required:</strong> To show HEADERS in your sheet and keep your URL valid, update your script and follow the deployment tip below.</span>
               </div>
               
               <div className="relative mb-6 group">
@@ -521,7 +522,7 @@ const Dashboard: React.FC<DashboardProps> = ({ currentUser, onLogout }) => {
   var orders = [];
   var users = [];
 
-  // Read Orders (11 columns: ID, Date, Name, Service, Amount, Status, AssignedTo, Advance, PayMode, CompletedAt, Priority)
+  // Read Orders (11 columns)
   var orderData = ordersSheet.getDataRange().getValues();
   if (orderData.length > 1) { orderData.shift(); orders = orderData; }
 
@@ -543,11 +544,19 @@ function doPost(e) {
     var params = JSON.parse(e.postData.contents);
 
     if (params.action === 'backup_all') {
-       // Save Orders
+       // --- SAVE ORDERS ---
        var sheet = ss.getSheets()[0];
+       
+       // FORCE HEADERS (Row 1)
+       var headers = ["Order ID", "Date", "Customer Name", "Service Type", "Amount", "Status", "Assigned To", "Advance", "Payment Mode", "Completed At", "Priority"];
+       sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+       sheet.getRange(1, 1, 1, headers.length).setFontWeight("bold").setBackground("#f3f4f6");
+
+       // Clear old data (from row 2)
        var lastRow = sheet.getLastRow();
        if (lastRow > 1) { sheet.getRange(2, 1, lastRow - 1, 11).clearContent(); }
        
+       // Write new data
        if (params.orders && params.orders.length > 0) {
          var rows = params.orders.map(function(o) { 
            return [o.id, o.date, o.customerName, o.serviceType, o.amount, o.status, o.assignedTo, o.advance, o.paymentMode, o.completedAt, o.priority]; 
@@ -555,11 +564,18 @@ function doPost(e) {
          sheet.getRange(2, 1, rows.length, 11).setValues(rows);
        }
 
-       // Save Users
+       // --- SAVE USERS ---
        var userSheet = ss.getSheetByName("Users");
-       if (!userSheet) { userSheet = ss.insertSheet("Users"); userSheet.appendRow(["Email", "Name", "Role", "Password"]); }
+       if (!userSheet) { userSheet = ss.insertSheet("Users"); }
+       
+       // FORCE USER HEADERS
+       var userHeaders = ["Email", "Name", "Role", "Password"];
+       userSheet.getRange(1, 1, 1, userHeaders.length).setValues([userHeaders]);
+       userSheet.getRange(1, 1, 1, userHeaders.length).setFontWeight("bold").setBackground("#e0e7ff");
+
        var lastUserRow = userSheet.getLastRow();
        if (lastUserRow > 1) { userSheet.getRange(2, 1, lastUserRow - 1, 4).clearContent(); }
+       
        if (params.users && params.users.length > 0) {
          var userRows = params.users.map(function(u) { return [u.email, u.name, u.role, u.password]; });
          userSheet.getRange(2, 1, userRows.length, 4).setValues(userRows);
@@ -574,17 +590,28 @@ function doPost(e) {
                   )} className="bg-slate-800 text-white px-3 py-1 text-xs rounded">Copy Code</button>
                 </div>
                 <pre className="bg-slate-900 text-slate-50 p-4 rounded-lg text-xs overflow-x-auto font-mono">
-{`// NEW SCRIPT FOR PRIORITY & TRANSFERS (11 COLUMNS)
-function doGet(e) {
-  // Reads Orders (including Priority) and Users
-  // ...
-}
-
+{`// NEW SCRIPT WITH AUTO-HEADERS
 function doPost(e) {
-  // Saves Orders with new columns:
-  // [ID, Date, Name, Service, Amount, Status, AssignedTo, Advance, PayMode, CompletedAt, Priority]
+  // ...
+  // Forces Row 1 to be Headers:
+  // ["Order ID", "Date", "Customer Name", "Service", "Amount", "Status", "Assigned", "Advance", "Mode", "Completed", "Priority"]
+  // ...
 }`}
                 </pre>
+              </div>
+
+              {/* Deployment Guide */}
+              <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
+                <h4 className="flex items-center gap-2 text-sm font-bold text-blue-900 mb-2">
+                    <HelpCircle size={16} />
+                    How to keep the URL same?
+                </h4>
+                <ol className="list-decimal list-inside text-xs text-blue-800 space-y-1 ml-1">
+                    <li>After pasting the new code, click <strong>Deploy</strong> {'>'} <strong>Manage Deployments</strong>.</li>
+                    <li>Click the <strong>Pencil Icon (Edit)</strong> next to your active deployment.</li>
+                    <li>Change the <strong>Version</strong> dropdown to <strong>"New version"</strong>.</li>
+                    <li>Click <strong>Deploy</strong>. Your URL will stay the same!</li>
+                </ol>
               </div>
 
               <div>
